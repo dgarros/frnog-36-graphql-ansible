@@ -1,5 +1,5 @@
 ---
-- name: "Generate Device Configuration with Data Gather with GraphQL"
+- name: "Generate Device Configuration with Data Gathered with GraphQL"
   hosts: all
   gather_facts: false
   connection: local
@@ -20,7 +20,7 @@
       }
 
   tasks:
-  - name: Obtain list of devices at site in variables from Nautobot
+  - name: "Gather Interfaces and IP addresses information per device"
     networktocode.nautobot.query_graphql:
       url: "https://demo.nautobot.com/"
       token: "{{ nautobot_token }}"
