@@ -1,0 +1,49 @@
+no aaa root
+!
+username admin privilege 15 role network-admin secret sha512 $6$q4ez.aZgB/G/eeWW$ukvRobb5RtYmUlCcY0atxhwPmA6FPoRjR3AxYFJqNFoCRgJjrohKGrBsbY12n1uRZeCer1L8oejx5aPlrf.op0
+!
+transceiver qsfp default-mode 4x10G
+!
+service routing protocols model multi-agent
+!
+hostname {{ inventory_hostname }}
+!
+spanning-tree mode mstp
+!
+management api http-commands
+   no shutdown
+!
+management api gnmi
+   transport grpc default
+!
+management api netconf
+   transport ssh default
+!
+{% for intf in devices[0]["interfaces"] %}
+{%  if intf.ip_addresses |length > 0  %}
+interface {{ intf["name"] }}
+{%   if intf.cpf_ntc_description is defined %}
+   description {{ intf["cpf_ntc_description"] }}
+{%   endif %}
+{%   for ip in intf["ip_addresses"] %}
+   ip address {{ ip["address"] }}
+   no switchport
+{%   endfor %}
+!
+{%  endif %}
+{% endfor %}
+!
+!
+ip prefix-list BOGON-Prefixes seq 10 permit 172.16.0.0/12 le 24
+ip prefix-list BOGON-Prefixes seq 20 permit 192.168.0.0/16 le 24
+!
+ip routing
+!
+ip route 0.0.0.0/0 172.20.20.1
+!
+route-map BOGONS permit 10
+ match ip address prefix-list BOGON-Prefixes
+!
+route-map BOGONS deny 20
+!
+end

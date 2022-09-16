@@ -1,0 +1,37 @@
+---
+- name: "Generate Device Configuration with Data Gather with GraphQL"
+  hosts: all
+  gather_facts: false
+  connection: local
+  vars:
+    nautobot_token: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    query_string: |
+      query ($device_name: [String!]) {
+        devices (name: $device_name) {
+          id
+          name
+          interfaces {
+            name
+            ip_addresses {
+              address
+            }
+          }
+        }
+      }
+
+  tasks:
+  - name: Obtain list of devices at site in variables from Nautobot
+    networktocode.nautobot.query_graphql:
+      url: "https://demo.nautobot.com/"
+      token: "{{ nautobot_token }}"
+      query: "{{ query_string }}"
+      graph_variables: "{{ gql_variables }}"
+      update_hostvars: yes
+    vars:
+      gql_variables:
+        device_name: "{{ inventory_hostname }}"
+
+  - name: "Generate Configuration"
+    ansible.builtin.template:
+      src: "config_template.j2"
+      dest: "generated_configs/{{ inventory_hostname }}.cfg"

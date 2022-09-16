@@ -1,0 +1,15 @@
+---
+plugin: networktocode.nautobot.gql_inventory
+api_endpoint: https://demo.nautobot.com/
+token: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+query:
+  devices:
+    device_role: name
+    status: slug
+    site:
+      name:
+    filters:
+      site: cdg01
+group_by:
+  - device_role.name
+  - status.slug
